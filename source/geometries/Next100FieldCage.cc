@@ -59,6 +59,8 @@ Next100FieldCage::Next100FieldCage():
   drift_long_diff_ (.3 * mm/sqrt(cm)),
   ELtransv_diff_ (0. * mm/sqrt(cm)),
   ELlong_diff_ (0. * mm/sqrt(cm)),
+  // Buffer Surface Reflectivity 
+  buffer_reflectivity_(0.),
   // EL electric field
   elfield_ (0),
   ELelectric_field_ (34.5*kilovolt/cm),
@@ -75,6 +77,7 @@ Next100FieldCage::Next100FieldCage():
   el_gap_gen_disk_diam_(0.),
   el_gap_gen_disk_x_(0.), el_gap_gen_disk_y_(0.),
   el_gap_gen_disk_zmin_(0.), el_gap_gen_disk_zmax_(1.)
+
 {
   /// Define new categories
   new G4UnitDefinition("kilovolt/cm","kV/cm","Electric field", kilovolt/cm);
@@ -172,6 +175,12 @@ Next100FieldCage::Next100FieldCage():
   if (el_gap_gen_disk_zmin_ > el_gap_gen_disk_zmax_)
     G4Exception("[Next100FieldCage]", "Next100FieldCage()", FatalErrorInArgument,
                 "Error in configuration of EL gap generator: zmax < zmin");
+    
+  G4GenericMessenger::Command& buff_refl =
+    msg_->DeclareProperty("buffer_reflectivity", buffer_reflectivity_, "Buffer Surface Reflectivity");
+  buff_refl.SetParameterName("buffer_reflectivity", false);
+  buff_refl.SetRange("buffer_reflectivity>0. && buffer_reflectivity<=1.0");
+    
 }
 
 
@@ -546,7 +555,8 @@ void Next100FieldCage::BuildFieldCage()
   new G4PVPlacement(0, G4ThreeVector(0., 0., teflon_buffer_zpos),
                     teflon_buffer_logic, "LIGHT_TUBE_BUFFER", mother_logic_,
                     false, 0, false);
-
+  
+  /// TPB SURFACE REMOVED ///
   /// TPB on teflon surface
   G4double router_tpb_buff[2] =
     {(active_diam_ + 2.*tpb_thickn_)/2., (active_diam_ + 2.*tpb_thickn_)/2.};
@@ -565,7 +575,21 @@ void Next100FieldCage::BuildFieldCage()
     new G4OpticalSurface("refl_Surf", unified, ground, dielectric_metal, .01);
   refl_Surf->SetMaterialPropertiesTable(OpticalMaterialProperties::PTFE());
   new G4LogicalSkinSurface("refl_teflon_surf", teflon_drift_logic, refl_Surf);
-  new G4LogicalSkinSurface("refl_teflon_surf", teflon_buffer_logic, refl_Surf);
+  
+  /// Optical surface defined for the buffer region - Used same properties than in NextNew Buffer ///
+  G4OpticalSurface* buff_Surf = new G4OpticalSurface("TRANSPARENT");
+  buff_Surf->SetType(dielectric_metal);
+  buff_Surf->SetModel(unified);
+  buff_Surf->SetFinish(ground);
+  buff_Surf->SetSigmaAlpha(0.1);
+  G4MaterialPropertiesTable* mpt = new G4MaterialPropertiesTable();
+  const G4int REFL_NUMENTRIES = 2;
+  G4double ENERGIES[REFL_NUMENTRIES] = {0.2*eV, 11.5*eV}; // Values taken from OpticalMaterialProperties Optical Photon min and max Energies
+  G4double REFLECTIVITY[REFL_NUMENTRIES] = {buffer_reflectivity_, buffer_reflectivity_}; // By default set to 0
+  mpt->AddProperty("REFLECTIVITY", ENERGIES, REFLECTIVITY, REFL_NUMENTRIES);
+
+  buff_Surf->SetMaterialPropertiesTable(mpt);
+  new G4LogicalSkinSurface("refl_teflon_surf", teflon_buffer_logic, buff_Surf);
 
   /// Optical surface between xenon and TPB to model roughness ///
   G4OpticalSurface* gas_tpb_teflon_surf =
@@ -576,10 +600,11 @@ void Next100FieldCage::BuildFieldCage()
                              gas_tpb_teflon_surf);
   new G4LogicalBorderSurface("gas_tpb_teflon_surf", mother_phys_, tpb_drift_phys,
                              gas_tpb_teflon_surf);
-  new G4LogicalBorderSurface("gas_tpb_teflon_surf", tpb_buffer_phys, mother_phys_,
-                             gas_tpb_teflon_surf);
-  new G4LogicalBorderSurface("gas_tpb_teflon_surf", mother_phys_, tpb_buffer_phys,
-                             gas_tpb_teflon_surf);
+  /// TPB SURFACE REMOVED ///
+//   new G4LogicalBorderSurface("gas_tpb_teflon_surf", tpb_buffer_phys, mother_phys_,
+//                              gas_tpb_teflon_surf);
+//   new G4LogicalBorderSurface("gas_tpb_teflon_surf", mother_phys_, tpb_buffer_phys,
+//                              gas_tpb_teflon_surf);
 
   // Vertex generator
   G4double teflon_ext_radius =
@@ -603,13 +628,16 @@ void Next100FieldCage::BuildFieldCage()
     teflon_buffer_logic->SetVisAttributes(green);
     G4VisAttributes red = nexus::Red();
     tpb_drift_logic->SetVisAttributes(red);
-    tpb_buffer_logic->SetVisAttributes(red);
+      /// TPB SURFACE REMOVED ///
+    //tpb_buffer_logic->SetVisAttributes(red);
+
   }
   else {
     teflon_drift_logic->SetVisAttributes(G4VisAttributes::Invisible);
     teflon_buffer_logic->SetVisAttributes(G4VisAttributes::Invisible);
     tpb_drift_logic->SetVisAttributes(G4VisAttributes::Invisible);
-    tpb_buffer_logic->SetVisAttributes(G4VisAttributes::Invisible);
+      /// TPB SURFACE REMOVED ///
+    ///tpb_buffer_logic->SetVisAttributes(G4VisAttributes::Invisible);
   }
 }
 
