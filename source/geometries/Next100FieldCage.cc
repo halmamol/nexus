@@ -179,7 +179,7 @@ Next100FieldCage::Next100FieldCage():
   G4GenericMessenger::Command& buff_refl =
     msg_->DeclareProperty("buffer_reflectivity", buffer_reflectivity_, "Buffer Surface Reflectivity");
   buff_refl.SetParameterName("buffer_reflectivity", false);
-  buff_refl.SetRange("buffer_reflectivity>0. && buffer_reflectivity<=1.0");
+  buff_refl.SetRange("buffer_reflectivity>=0. && buffer_reflectivity<=1.0");
     
 }
 
@@ -558,17 +558,17 @@ void Next100FieldCage::BuildFieldCage()
   
   /// TPB SURFACE REMOVED ///
   /// TPB on teflon surface
-  G4double router_tpb_buff[2] =
-    {(active_diam_ + 2.*tpb_thickn_)/2., (active_diam_ + 2.*tpb_thickn_)/2.};
-
-  G4Polyhedra* tpb_buffer_solid =
-    new  G4Polyhedra("BUFFER_TPB", 0., twopi, n_panels_, 2,
-                     zplane_buff, rinner, router_tpb_buff);
-  G4LogicalVolume* tpb_buffer_logic =
-    new G4LogicalVolume(tpb_buffer_solid, tpb_, "BUFFER_TPB");
-  G4VPhysicalVolume* tpb_buffer_phys =
-    new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), tpb_buffer_logic,
-                      "BUFFER_TPB", teflon_buffer_logic, false, 0, false);
+//   G4double router_tpb_buff[2] =
+//     {(active_diam_ + 2.*tpb_thickn_)/2., (active_diam_ + 2.*tpb_thickn_)/2.};
+// 
+//   G4Polyhedra* tpb_buffer_solid =
+//     new  G4Polyhedra("BUFFER_TPB", 0., twopi, n_panels_, 2,
+//                      zplane_buff, rinner, router_tpb_buff);
+//   G4LogicalVolume* tpb_buffer_logic =
+//     new G4LogicalVolume(tpb_buffer_solid, tpb_, "BUFFER_TPB");
+//   G4VPhysicalVolume* tpb_buffer_phys =
+//     new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), tpb_buffer_logic,
+//                       "BUFFER_TPB", teflon_buffer_logic, false, 0, false);
 
   /// Optical surface on teflon ///
   G4OpticalSurface* refl_Surf =
