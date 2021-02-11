@@ -66,7 +66,8 @@ namespace nexus {
     const G4double cath_grid_transparency_, el_grid_transparency_;
 
     //Buffer Surface Reflectivity
-    G4double buffer_reflectivity_;
+    G4double reflect_UV_;
+    G4double reflect_vis_;
     
     //Step size
     G4double max_step_size_;

@@ -60,7 +60,8 @@ Next100FieldCage::Next100FieldCage():
   ELtransv_diff_ (0. * mm/sqrt(cm)),
   ELlong_diff_ (0. * mm/sqrt(cm)),
   // Buffer Surface Reflectivity 
-  buffer_reflectivity_(0.),
+  reflect_UV_(0.60),
+  reflect_vis_(0.90),
   // EL electric field
   elfield_ (0),
   ELelectric_field_ (34.5*kilovolt/cm),
@@ -176,10 +177,16 @@ Next100FieldCage::Next100FieldCage():
     G4Exception("[Next100FieldCage]", "Next100FieldCage()", FatalErrorInArgument,
                 "Error in configuration of EL gap generator: zmax < zmin");
     
-  G4GenericMessenger::Command& buff_refl =
-    msg_->DeclareProperty("buffer_reflectivity", buffer_reflectivity_, "Buffer Surface Reflectivity");
-  buff_refl.SetParameterName("buffer_reflectivity", false);
-  buff_refl.SetRange("buffer_reflectivity>=0. && buffer_reflectivity<=1.0");
+  G4GenericMessenger::Command& buff_refl_UV =
+    msg_->DeclareProperty("buffer_reflectivity_UV", reflect_UV_, "Buffer Surface Reflectivity UV region");
+  buff_refl_UV.SetParameterName("buffer_reflectivity_UV", false);
+  buff_refl_UV.SetRange("buffer_reflectivity_UV>=0. && buffer_reflectivity_UV<=1.0");
+  
+  G4GenericMessenger::Command& buff_refl_vis =
+    msg_->DeclareProperty("buffer_reflectivity_vis", reflect_vis_, "Buffer Surface Reflectivity Visible region");
+  buff_refl_vis.SetParameterName("buffer_reflectivity_vis", false);
+  buff_refl_vis.SetRange("buffer_reflectivity_vis>=0. && buffer_reflectivity_vis<=1.0");
+  
     
 }
 
@@ -577,19 +584,27 @@ void Next100FieldCage::BuildFieldCage()
   new G4LogicalSkinSurface("refl_teflon_surf", teflon_drift_logic, refl_Surf);
   
   /// Optical surface defined for the buffer region - Used same properties than in NextNew Buffer ///
-  G4OpticalSurface* buff_Surf = new G4OpticalSurface("TRANSPARENT");
-  buff_Surf->SetType(dielectric_metal);
-  buff_Surf->SetModel(unified);
-  buff_Surf->SetFinish(ground);
-  buff_Surf->SetSigmaAlpha(0.1);
+  /// Defined two parameters for the UV reflectivity (reflect_UV_) and the blue reflectivity (reflect_vis_) //
+  G4OpticalSurface* abs_opt_surf = new G4OpticalSurface("ABSORBER");
+  abs_opt_surf->SetType(dielectric_metal);
+  abs_opt_surf->SetModel(unified);
+  abs_opt_surf->SetFinish(ground);
+  abs_opt_surf->SetSigmaAlpha(0.1);
   G4MaterialPropertiesTable* mpt = new G4MaterialPropertiesTable();
-  const G4int REFL_NUMENTRIES = 2;
-  G4double ENERGIES[REFL_NUMENTRIES] = {0.2*eV, 11.5*eV}; // Values taken from OpticalMaterialProperties Optical Photon min and max Energies
-  G4double REFLECTIVITY[REFL_NUMENTRIES] = {buffer_reflectivity_, buffer_reflectivity_}; // By default set to 0
+  const G4int REFL_NUMENTRIES = 7;
+  G4double ENERGIES[REFL_NUMENTRIES] = { // Values taken from OpticalMaterialProperties Optical Photon min and max Energies
+    0.2*eV,  2.8 * eV,  3.5 * eV,  4. * eV,
+    6. * eV,       7.2 * eV,  11.5*eV
+  };
+  G4double REFLECTIVITY[REFL_NUMENTRIES] = {// By default set to 0.90 and 0.60 correspondly
+    reflect_vis_,  reflect_vis_,  reflect_vis_,  reflect_vis_,
+    reflect_UV_,  reflect_UV_,  reflect_UV_
+  };
+  
   mpt->AddProperty("REFLECTIVITY", ENERGIES, REFLECTIVITY, REFL_NUMENTRIES);
 
-  buff_Surf->SetMaterialPropertiesTable(mpt);
-  new G4LogicalSkinSurface("refl_teflon_surf", teflon_buffer_logic, buff_Surf);
+  abs_opt_surf->SetMaterialPropertiesTable(mpt);
+  new G4LogicalSkinSurface("refl_teflon_surf", teflon_buffer_logic, abs_opt_surf);
 
   /// Optical surface between xenon and TPB to model roughness ///
   G4OpticalSurface* gas_tpb_teflon_surf =
