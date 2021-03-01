@@ -1,0 +1,37 @@
+## ----------------------------------------------------------------------------
+## nexus | NEXT100.fullKr_buffreflec.config.mac
+##
+## Initialization macro to simulate Kr-83 decays in the NEXT100 geometry
+## with generation and transportation of optical photons.
+## Possibility to edit the the buffer reflectivity parameters.
+##
+## The NEXT Collaboration
+## ----------------------------------------------------------------------------
+
+# VERBOSITY
+/run/verbose 0
+/event/verbose 0
+/tracking/verbose 0
+
+# GEOMETRY
+/Geometry/Next100/pressure                15. bar
+/Geometry/Next100/sc_yield                25510. 1/MeV
+/Geometry/Next100/max_step_size           1. mm
+/Geometry/Next100/elfield                 true
+/Geometry/Next100/EL_field                16. kilovolt/cm
+/Geometry/Next100/drift_transv_diff       1.0 mm/sqrt(cm)
+/Geometry/Next100/drift_long_diff         0.2 mm/sqrt(cm)
+/Geometry/Next100/e_lifetime              1000.0 ms 
+
+/Geometry/PmtR11410/time_binning          25. nanosecond
+/Geometry/Next100/sipm_time_binning       1. microsecond
+
+/Geometry/Next100/buffer_reflectivity_UV  0.5
+/Geometry/Next100/buffer_reflectivity_vis 0.5
+
+
+# GENERATOR
+/Generator/Kr83mGenerator/region ACTIVE
+
+# PERSISTENCY
+/nexus/persistency/outputFile NEXT100.Kr83_full_reflectivity.sim

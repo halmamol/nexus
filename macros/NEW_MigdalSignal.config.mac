@@ -1,0 +1,43 @@
+## ----------------------------------------------------------------------------
+## nexus | NEW_MigdalSignal.config.mac
+##
+## Configuration macro to simulate neutrons from a specific vertex
+## in the NEW detector.
+##
+## The NEXT Collaboration
+## ----------------------------------------------------------------------------
+
+### VERBOSITY
+/control/verbose 0
+/run/verbose 0
+/event/verbose 0
+/tracking/verbose 0
+
+### JOB CONTROL
+/nexus/random_seed 12345
+#/nexus/random_seed 10
+
+### GEOMETRY
+/Geometry/NextNew/pressure 10. bar
+/Geometry/NextNew/max_step_size 1. mm
+/Geometry/NextNew/sc_yield 25510. 1/MeV
+/Geometry/NextNew/e_lifetime 20. ms
+/Geometry/NextNew/EL_field 15 kV/cm
+/Geometry/NextNew/elfield true
+/Geometry/NextNew/gas depletedXe ## gas defined in Geometry/NextNewVessel file
+
+
+#/process/optical/processActivation Cerenkov false
+
+### GENERATOR
+/Generator/MigdalSignalGenerator/region ACTIVE
+/Generator/MigdalSignalGenerator/inputFile /Users/halmamol/NEXT/migdal4NEXT/event_list.HEPEvt
+
+### PHYSICS
+/PhysicsList/Nexus/clustering           true
+/PhysicsList/Nexus/drift                true
+/PhysicsList/Nexus/electroluminescence  true
+
+### PERSISTENCY
+/nexus/persistency/eventType background
+/nexus/persistency/outputFile NEW_MigdalSignal_test.next
