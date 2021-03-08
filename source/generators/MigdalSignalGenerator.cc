@@ -1,9 +1,9 @@
 // ----------------------------------------------------------------------------
 // nexus | MigdalSignalGenerator.cc
 //
-// This class is the a generator of the Migdal Signal from ** in the detector.
+// This class is the a generator of the Migdal Signal from arxiv:2009.05939 in the detector.
 // Particle propiertes are taken from an external file defined in the configuration
-// file. Probabilites are evaluated in this code. 
+// file. This file is generated with 'migdal4NEXT'. Probabilites are evaluated in this code. 
 //
 // The NEXT Collaboration
 // ----------------------------------------------------------------------------
@@ -75,7 +75,7 @@ namespace nexus {
   void MigdalSignalGenerator::OpenInputFile(G4String filename)
   {
     if (filename.find("none") != std::string::npos) {
-      std::cerr << " We will use the new interface to Decay00 " << std::endl;
+      std::cerr << " We will use the new interface " << std::endl;
       opened_ = false;
       return;
     }
@@ -88,7 +88,7 @@ namespace nexus {
     }
     else {
       G4Exception("[MigdalSignalGenerator]", "SetInputFile()", JustWarning,
-      "Cannot open Decay0 input file.");
+      "Cannot open input file.");
     }
   }
 
@@ -101,7 +101,7 @@ namespace nexus {
   // Particle generated at start-of-event
   G4double time = 0.;
 
-  // Create a new vertex
+  // Create new vertex. Same vertex used for all the particles
   G4PrimaryVertex* vertex = new G4PrimaryVertex(position, time);
       
 
@@ -118,8 +118,7 @@ namespace nexus {
 
   
   //--- Nuclear Recoil
-  
-    // Calculate cartesian components of momentum
+    // Define cartesian components of momentum
     G4double mass_NR;
     G4double px_NR;
     G4double py_NR;
@@ -128,76 +127,72 @@ namespace nexus {
     G4int particleID1;
     G4int XenonNR;
     
-    
-
     file_ >> particleID1 >> XenonNR >> px_NR >> py_NR >> pz_NR >> mass_NR;
-//    std::cout << particleID1 << " " << XenonNR <<  " " << px_NR << " " << py_NR << " " << pz_NR << " " << mass_NR << std::endl;
     if(particleID1 != 1){std::cout << " Error! Particle value not in agreement with Nuclear Recoil" << std::endl; }
     
+    // Using Xenon atom information from file to create Ion
    particle_defXe_ = 
     G4IonTable::GetIonTable()->GetIon(54, XenonNR, 0.);   
-  // Create the new primary particle and set it some properties
+  // Create the NR primary particle and set its properties
     G4PrimaryParticle* particle_XeNR =
      new G4PrimaryParticle(particle_defXe_, px_NR, py_NR, pz_NR);    
    
      
      
-    //--- Migdal Electron ---
-
-    // Calculate cartesian components of momentum
-  G4double mass_ME;
-  G4double px_ME;
-  G4double py_ME;
-  G4double pz_ME;
-  
-  G4int particleID2;
-  G4int pdgME;
-  
-  file_ >> particleID2 >> pdgME >> px_ME >> py_ME >> pz_ME >> mass_ME;
-//    std::cout << particleID2 << " " << pdgME <<  " " << px_ME << " " << py_ME << " " << pz_ME << " " << mass_ME << std::endl;
-  if(particleID2 != 2){std::cout << " Error! Particle value not in agreement with Migdal Electron" << std::endl; }
-  // Create the new primary particle and set it some properties
-  G4PrimaryParticle* particle_ME =
-    new G4PrimaryParticle(particle_defME_, px_ME, py_ME, pz_ME);  
+  //--- Migdal Electron ---
+    // Define cartesian components of momentum
+    G4double mass_ME;
+    G4double px_ME;
+    G4double py_ME;
+    G4double pz_ME;
+    
+    G4int particleID2;
+    G4int pdgME;
+    
+    file_ >> particleID2 >> pdgME >> px_ME >> py_ME >> pz_ME >> mass_ME;
+    if(particleID2 != 2){std::cout << " Error! Particle value not in agreement with Migdal Electron" << std::endl; }
+    // Create the Migdal Electron primary particle and set its properties
+    G4PrimaryParticle* particle_ME =
+        new G4PrimaryParticle(particle_defME_, px_ME, py_ME, pz_ME);  
     
     
     
  
   //--- De-excitation particles ---
+    // Xray
+    // Define cartesian components of momentum
+    G4double px_XR;
+    G4double py_XR;
+    G4double pz_XR;
+    G4int mass_XR;
+    
+    G4int particleID3;
+    G4int pdgXR;
+    
+    file_ >> particleID3 >> pdgXR >> px_XR >> py_XR >> pz_XR >> mass_XR;
+    if(particleID3 != 3){std::cout << " Error! Particle value not in agreement with Xray" << std::endl; }
+    // Create the Xray and set its properties
+    G4PrimaryParticle* particle_XR =
+        new G4PrimaryParticle(particle_defXray_, px_XR, py_XR, pz_XR);  
+    
+    // De-excitation electron
     // Calculate cartesian components of momentum
-  G4double px_XR;
-  G4double py_XR;
-  G4double pz_XR;
-  G4int mass_XR;
-  
-  G4int particleID3;
-  G4int pdgXR;
-  
-  file_ >> particleID3 >> pdgXR >> px_XR >> py_XR >> pz_XR >> mass_XR;
-//     std::cout << particleID3 << " " << pdgXR <<  " " << px_XR << " " << py_XR << " " << pz_XR << " " << mass_XR <<std::endl;
-  if(particleID3 != 3){std::cout << " Error! Particle value not in agreement with Xray" << std::endl; }
-  // Create the new primary particle and set it some properties
-  G4PrimaryParticle* particle_XR =
-    new G4PrimaryParticle(particle_defXray_, px_XR, py_XR, pz_XR);  
+    G4double mass_XRe;
+    G4double px_XRe;
+    G4double py_XRe;
+    G4double pz_XRe;
     
+    G4int particleID4;
+    G4int pdgXRe;
     
-    // Calculate cartesian components of momentum
-  G4double mass_XRe;
-  G4double px_XRe;
-  G4double py_XRe;
-  G4double pz_XRe;
-  
-  G4int particleID4;
-  G4int pdgXRe;
-  
-  file_ >> particleID4 >> pdgXRe >> px_XRe >> py_XRe >> pz_XRe >> mass_XRe;
-   std::cout << particleID4 << " " << pdgXRe <<  " " << px_XRe << " " << py_XRe << " " << pz_XRe << " " << mass_XRe << std::endl;
-  // Create the new primary particle and set it some properties
-  G4PrimaryParticle* particle_XRe =
-    new G4PrimaryParticle(particle_defXraye_, px_XRe, py_XRe, pz_XRe);  
+    file_ >> particleID4 >> pdgXRe >> px_XRe >> py_XRe >> pz_XRe >> mass_XRe;
+    if(particleID3 != 4){std::cout << " Error! Particle value not in agreement with electron" << std::endl; }
+    // Create the electron primary particle and set its properties
+    G4PrimaryParticle* particle_XRe =
+        new G4PrimaryParticle(particle_defXraye_, px_XRe, py_XRe, pz_XRe);  
     
   
-  // Add ion to the vertex and this to the event
+  // Add ion and particles to the vertex, and this to the event
   vertex->SetPrimary(particle_XeNR);
   vertex->SetPrimary(particle_ME);
   vertex->SetPrimary(particle_XR);

@@ -1,9 +1,9 @@
 // ----------------------------------------------------------------------------
-// nexus | MigdalSignalGenerator.h
+// nexus | MigdalSignalGenerator.cc
 //
-// This class is the a generator of the Migdal Signal from ** in the detector.
+// This class is the a generator of the Migdal Signal from arxiv:2009.05939 in the detector.
 // Particle propiertes are taken from an external file defined in the configuration
-// file. Probabilites are evaluated in this code. 
+// file. This file is generated with 'migdal4NEXT'. Probabilites are evaluated in this code. 
 //
 // The NEXT Collaboration
 // ----------------------------------------------------------------------------
@@ -37,16 +37,9 @@ namespace nexus {
     void GeneratePrimaryVertex(G4Event*);
 
   private:
-
-    /// Generate a random kinetic energy with flat probability in
-    //  the interval [energy_min, energy_max].
-    G4double RandomEnergy() const;
-    
-    
-    /// Open the Decay0 input file selected by the user
+  
+    /// Open the input file selected by the user
     void OpenInputFile(G4String);
-    //void ProcessHeader();
-
   private:
       
     G4int atomic_number_, mass_number_;
